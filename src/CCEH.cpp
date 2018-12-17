@@ -206,6 +206,7 @@ void Directory::LSBUpdate(int local_depth, int global_depth, int dir_cap, int x,
 }
 
 void CCEH::Insert(Key_t& key, Value_t value) {
+STARTOVER:
   auto key_hash = h(&key, sizeof(key));
 #ifdef LSB
   auto y = (key_hash >> (sizeof(key_hash)*8-kShift)) * kNumPairPerCacheLine;
@@ -332,7 +333,8 @@ RETRY:
     }
     goto RETRY;
   } else if (ret == 2) {
-    Insert(key, value);
+    // Insert(key, value);
+    goto STARTOVER;
   } else {
     clflush((char*)&dir._[x]->_[y], 64);
   }
