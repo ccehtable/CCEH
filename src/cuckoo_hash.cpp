@@ -209,6 +209,21 @@ vector<pair<size_t,Key_t>> CuckooHash::find_path(size_t target) {
   return move(path);
 }
 
+bool CuckooHash::execute_path(vector<pair<size_t,size_t>>& path) {
+  auto i = 0;
+  auto j = (i+1)%2;
+
+  for (auto p: path) {
+    pushed[j] = table[p.first];
+    clflush((char*)& pushed[j], sizeof(Pair));
+    table[p.first] = pushed[i];
+    clflush((char*)& table[p.first], sizeof(Pair));
+    i = (i+1)%2;
+    j = (i+1)%2;
+  }
+  return true;
+}
+
 bool CuckooHash::execute_path(vector<pair<size_t,size_t>>& path, Key_t& key, Value_t value) {
   for (int i = path.size()-1; i > 0; --i) {
     table[path[i].first] = table[path[i-1].first];

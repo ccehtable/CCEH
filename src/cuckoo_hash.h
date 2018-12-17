@@ -51,6 +51,7 @@ class CuckooHash : public Hash {
     bool resize(void);
     std::vector<std::pair<size_t, size_t>> find_path(size_t);
     bool validate_path(std::vector<size_t>&);
+    bool execute_path(std::vector<std::pair<size_t,size_t>>&);
     bool execute_path(std::vector<std::pair<size_t,size_t>>&, Key_t&, Value_t);
 
     size_t capacity;
