@@ -11,6 +11,8 @@
 
 #ifdef LEVEL
 #include "external/level_hashing.h"
+#elif NLEVEL
+#include "external/new_level_hashing.h"
 #elif PATH
 #include "external/path_hashing.h"
 #elif BCH
@@ -37,7 +39,7 @@ void clear_cache() {
 #endif
 }
 
-uint32_t clflushCount = 0;
+uint64_t clflushCount = 0;
 size_t splitCount = 0;
 uint64_t kWriteLatencyInNS = 0;
 
@@ -58,6 +60,8 @@ int main(void) {
     auto table = path_init(11, 8);
 #elif LEVEL
     auto table = level_init(12);
+#elif NLEVEL
+    auto table = level_init(12);
 #elif BCH
     auto table = cuckoo_init(9);
     table->cuckoo_loop = 16;
@@ -71,6 +75,13 @@ int main(void) {
       // t.Start();
       for (unsigned i = 0; i < dat; ++i) {
 #ifdef LEVEL
+        while (level_insert(table, keys[i], reinterpret_cast<Value_t>(&keys[i])) != 0) {
+          t.Start();
+          level_resize(table);
+          t.Stop();
+      elapsed += t.Get();
+        }
+#elif NLEVEL
         while (level_insert(table, keys[i], reinterpret_cast<Value_t>(&keys[i])) != 0) {
           t.Start();
           level_resize(table);
@@ -91,7 +102,6 @@ int main(void) {
       cout << clflushCount << " nubmer of clflush() is called." << endl;
     }
 
-    /*
     clear_cache();
     {
       t.Start();
@@ -99,6 +109,8 @@ int main(void) {
       while (i < dat) {
 #ifdef LEVEL
         auto ret = level_query(table, keys[i]);
+#elif NLEVEL
+        auto ret = level_static_query(table, keys[i]);
 #elif PATH
         auto ret = path_query(table, keys[i]);
 #elif BCH
@@ -112,7 +124,6 @@ int main(void) {
       t.Stop();
       cout << t.GetSeconds() << " to retrive " << i << " entries." << endl;
     }
-    */
     delete table;
   // }
 

@@ -27,6 +27,10 @@ CCEH: src/CCEH.cpp src/CCEH.h
 cuckoo_hash: src/cuckoo_hash.cpp src/cuckoo_hash.h
 	$(CXX) $(CFLAGS) -c -o src/cuckoo_hash.o src/cuckoo_hash.cpp
 
+new_level: external/new_level_hashing.c external/new_level_hashing.h external/log.h external/log.c
+	$(CXX) $(CFLAGS) -c -o external/log.o external/log.c
+	$(CXX) $(CFLAGS) -c -o external/new_level_hashing.o external/new_level_hashing.c
+
 level: external/level_hashing.c external/level_hashing.h
 	$(CXX) $(CFLAGS) -c -o external/ori_level_hashing.o external/level_hashing.c
 
@@ -45,6 +49,10 @@ level_new: external/level_hashing.cpp external/level_hashing.hpp
 
 perf_level: level_new
 	$(CXX) $(CFLAGS) -o bin/performance_test.exe test/performance_test.cpp external/level_hashing.o -DLEVEL
+	bin/performance_test.exe
+
+perf_nlevel: new_level
+	$(CXX) $(CFLAGS) -o bin/performance_test.exe test/external_test.cpp external/new_level_hashing.o external/log.o -DNLEVEL
 	bin/performance_test.exe
 
 path_new: external/path_hashing.cpp external/path_hashing.hpp
