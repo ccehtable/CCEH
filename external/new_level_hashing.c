@@ -321,6 +321,7 @@ uint8_t level_delete(level_hash *level, Key_t& key)
                 level->buckets[i][f_idx].token[j] = 0;
                 clflush((char*)&level->buckets[i][f_idx].token[j], sizeof(int8_t));
                 level->level_item_num[i] --;
+                clflush((char*)level->level_item_num[i], sizeof(uint64_t));
                 mfence();
                 return 0;
             }
@@ -331,6 +332,7 @@ uint8_t level_delete(level_hash *level, Key_t& key)
                 level->buckets[i][s_idx].token[j] = 0;
                 clflush((char*)&level->buckets[i][s_idx].token[j], sizeof(int8_t));
                 level->level_item_num[i] --;
+                clflush((char*)level->level_item_num[i], sizeof(uint64_t));
                 mfence();
                 return 0;
             }
@@ -444,6 +446,7 @@ uint8_t level_insert(level_hash *level, Key_t& key, Value_t value)
                 level->buckets[i][f_idx].token[j] = 1;
                 clflush((char*)&level->buckets[i][f_idx].token[j], sizeof(int8_t));
                 level->level_item_num[i] ++;
+                clflush((char*)&level->level_item_num[i], sizeof(uint64_t));
                 mfence();
                 return 0;
             }
@@ -457,6 +460,7 @@ uint8_t level_insert(level_hash *level, Key_t& key, Value_t value)
                 level->buckets[i][s_idx].token[j] = 1;
                 clflush((char*)&level->buckets[i][s_idx].token[j], sizeof(int8_t));
                 level->level_item_num[i] ++;
+                clflush((char*)&level->level_item_num[i], sizeof(uint64_t));
                 mfence();
                 return 0;
             }
@@ -472,6 +476,7 @@ uint8_t level_insert(level_hash *level, Key_t& key, Value_t value)
             level->buckets[i][f_idx].token[empty_location] = 1;
             clflush((char*)&level->buckets[i][f_idx].token[empty_location], sizeof(int8_t));
             level->level_item_num[i] ++;
+            clflush((char*)&level->level_item_num[i], sizeof(uint64_t));
             mfence();
             return 0;
 
@@ -488,6 +493,7 @@ uint8_t level_insert(level_hash *level, Key_t& key, Value_t value)
                 level->buckets[i][s_idx].token[empty_location] = 1;
                 clflush((char*)&level->buckets[i][s_idx].token[empty_location], sizeof(int8_t));
                 level->level_item_num[i] ++;
+                clflush((char*)&level->level_item_num[i], sizeof(uint64_t));
                 mfence();
                 return 0;
             }
@@ -508,6 +514,7 @@ uint8_t level_insert(level_hash *level, Key_t& key, Value_t value)
             level->buckets[1][f_idx].token[empty_location] = 1;
             clflush((char*)&level->buckets[1][f_idx].token[empty_location], sizeof(int8_t));
             level->level_item_num[1] ++;
+            clflush((char*)&level->level_item_num[i], sizeof(uint64_t));
             mfence();
             return 0;
         }
@@ -522,6 +529,7 @@ uint8_t level_insert(level_hash *level, Key_t& key, Value_t value)
             level->buckets[1][s_idx].token[empty_location] = 1;
             clflush((char*)&level->buckets[1][s_idx].token[empty_location], sizeof(int8_t));
             level->level_item_num[1] ++;
+            clflush((char*)&level->level_item_num[i], sizeof(uint64_t));
             mfence();
             return 0;
         }
@@ -612,6 +620,7 @@ int b2t_movement(level_hash *level, uint64_t idx)
 
                 level->level_item_num[0] ++;
                 level->level_item_num[1] --;
+                clflush((char*)&level->level_item_num[0], sizeof(uint64_t)*2);
                 return i;
             }
             if (level->buckets[0][s_idx].token[j] == 0)
@@ -631,6 +640,7 @@ int b2t_movement(level_hash *level, uint64_t idx)
 
                 level->level_item_num[0] ++;
                 level->level_item_num[1] --;
+                clflush((char*)&level->level_item_num[0], sizeof(uint64_t)*2);
                 return i;
             }
         }
