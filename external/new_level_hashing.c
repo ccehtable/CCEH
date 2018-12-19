@@ -182,7 +182,7 @@ void level_resize(level_hash *level)
     clflush((char*)&level->level_size_bak, sizeof(uint64_t));
     level->level_size ++;
     level->total_capacity_bak = level->total_capacity;
-    clflush((char*)&level->level_capacity_bak, sizeof(uint64_t));
+    clflush((char*)&level->total_capacity_bak, sizeof(uint64_t));
     level->total_capacity = pow(2, level->level_size) + pow(2, level->level_size - 1);
 
     level->buckets_bak[0] = level->buckets[0];
