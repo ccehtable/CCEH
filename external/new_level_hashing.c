@@ -2,6 +2,12 @@
 #include "util/persist.h"
 #include "util/hash.h"
 
+void* alignedmalloc(size_t size) {
+  void* ret;
+  posix_memalign(&ret, 64, size);
+  return ret;
+}
+
 /*
 Function: F_HASH()
         Compute the first hash value of a key-value item
@@ -56,7 +62,7 @@ Function: level_init()
 */
 level_hash *level_init(uint64_t level_size)
 {
-    level_hash *level = (level_hash*)malloc(sizeof(level_hash));
+    level_hash *level = (level_hash*)alignedmalloc(sizeof(level_hash));
     if (!level)
     {
         printf("The level hash table initialization fails:1\n");
@@ -69,8 +75,8 @@ level_hash *level_init(uint64_t level_size)
     level->total_capacity = pow(2, level_size) + pow(2, level_size - 1);
     level->total_capacity_bak = 0;
     generate_seeds(level);
-    level->buckets[0] = (level_bucket*)malloc(pow(2, level_size)*sizeof(level_bucket));
-    level->buckets[1] = (level_bucket*)malloc(pow(2, level_size - 1)*sizeof(level_bucket));
+    level->buckets[0] = (level_bucket*)alignedmalloc(pow(2, level_size)*sizeof(level_bucket));
+    level->buckets[1] = (level_bucket*)alignedmalloc(pow(2, level_size - 1)*sizeof(level_bucket));
     level->buckets_bak[0] = NULL;
     level->buckets_bak[1] = NULL;
     level->level_item_num[0] = 0;
@@ -112,7 +118,8 @@ void level_resize(level_hash *level)
 
     level->addr_capacity_bak = level->addr_capacity;
     level->addr_capacity = pow(2, level->level_size + 1);
-    level_bucket *newBuckets = (level_bucket*)malloc(level->addr_capacity*sizeof(level_bucket));
+    level_bucket *newBuckets = (level_bucket*)alignedmalloc(level->addr_capacity*sizeof(level_bucket));
+
     if (!newBuckets) {
         printf("The resizing fails: 2\n");
         exit(1);
