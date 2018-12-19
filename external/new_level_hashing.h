@@ -27,10 +27,15 @@ typedef struct level_bucket               // A bucket
 
 typedef struct level_hash {               // A Level hash table
     level_bucket *buckets[2];             // The top level and bottom level in the Level hash table
+    level_bucket *buckets_bak[2];
     uint64_t level_item_num[2];           // The numbers of items stored in the top and bottom levels respectively
+    uint64_t level_item_num_bak[2];
     uint64_t addr_capacity;               // The number of buckets in the top level
+    uint64_t addr_capacity_bak;
     uint64_t total_capacity;              // The number of all buckets in the Level hash table    
+    uint64_t total_capacity_bak;
     uint64_t level_size;                  // level_size = log2(addr_capacity)
+    uint64_t level_size_bak;
     uint8_t level_resize;                 // Indicate whether the Level hash table was resized, "1": Yes, "0": No;
     uint64_t f_seed;
     uint64_t s_seed;                      // Two randomized seeds for hash functions

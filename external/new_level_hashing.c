@@ -65,12 +65,18 @@ level_hash *level_init(uint64_t level_size)
 
     level->level_size = level_size;
     level->addr_capacity = pow(2, level_size);
+    level->addr_capacity_bak = 0;
     level->total_capacity = pow(2, level_size) + pow(2, level_size - 1);
+    level->total_capacity_bak = 0;
     generate_seeds(level);
     level->buckets[0] = (level_bucket*)malloc(pow(2, level_size)*sizeof(level_bucket));
     level->buckets[1] = (level_bucket*)malloc(pow(2, level_size - 1)*sizeof(level_bucket));
+    level->buckets_bak[0] = NULL;
+    level->buckets_bak[1] = NULL;
     level->level_item_num[0] = 0;
     level->level_item_num[1] = 0;
+    level->level_item_num_bak[0] = 0;
+    level->level_item_num_bak[1] = 0;
     level->level_resize = 0;
     
     if (!level->buckets[0] || !level->buckets[1])
@@ -80,6 +86,7 @@ level_hash *level_init(uint64_t level_size)
     }
 
     level->log = log_create(1024);
+    clflush((char*)&level, sizeof(level_hash));
 
     printf("Level hashing: ASSOC_NUM %d, sizeof(Key_t) %d, sizeof(Value_t) %d \n", ASSOC_NUM, sizeof(Key_t), sizeof(Value_t));
     printf("The number of top-level buckets: %d\n", level->addr_capacity);
@@ -103,6 +110,7 @@ void level_resize(level_hash *level)
         exit(1);
     }
 
+    level->addr_capacity_bak = level->addr_capacity;
     level->addr_capacity = pow(2, level->level_size + 1);
     level_bucket *newBuckets = (level_bucket*)malloc(level->addr_capacity*sizeof(level_bucket));
     if (!newBuckets) {
@@ -170,17 +178,37 @@ void level_resize(level_hash *level)
         }
     }
 
+    level->level_size_bak = level->level_size;
+    clflush((char*)&level->level_size_bak, sizeof(uint64_t));
     level->level_size ++;
+    level->total_capacity_bak = level->total_capacity;
+    clflush((char*)&level->level_capacity_bak, sizeof(uint64_t));
     level->total_capacity = pow(2, level->level_size) + pow(2, level->level_size - 1);
 
-    free(level->buckets[1]);
+    level->buckets_bak[0] = level->buckets[0];
+    level->buckets_bak[1] = level->buckets[1];
+    clflush((char*)&level->buckets_bak[0], sizeof(level_bucket*)*2);
     level->buckets[1] = level->buckets[0];
     level->buckets[0] = newBuckets;
     newBuckets = NULL;
     
+    level->level_item_num_bak[0] = level->level_item_num[0];
+    level->level_item_num_bak[1] = level->level_item_num[1];
+    clflush((char*)&level->level_item_num_bak[0], sizeof(uint64_t)*2);
     level->level_item_num[1] = level->level_item_num[0];
     level->level_item_num[0] = new_level_item_num;
     level->level_resize ++;
+    clflush((char*)&level, sizeof(level_hash));
+
+    // Remove backup information
+    level->level_size_bak = 0;
+    level->total_capacity_bak = 0;
+    level->buckets_bak[0] = NULL;
+    level->buckets_bak[1] = NULL;
+    level->level_item_num_bak[0] = 0;
+    level->level_item_num_bak[1] = 0;
+    clflush((char*)&level, sizeof(level_hash));
+    free(level->buckets_bak[1]);
 }
 
 /*
