@@ -161,6 +161,10 @@ datasize: CCEH # path_new level_new cuckoo_hash linear_hash CCEH bch
 	# $(CXX) $(CFLAGS) -o bin/datasize.exe test/datasize.cpp external/bucketized_cuckoo.o -DBCH
 	# bin/datasize.exe
 
+dir_doub_ov:
+	$(CXX) $(CFLAGS) -o bin/dir_doub_ov.x test/directory_doubling_overhead.cpp
+	bin/dir_doub_ov.x
+
 all:
 	echo "NOTHING YET"
 
