@@ -464,3 +464,44 @@ size_t Segment::numElem(void) {
   }
   return sum;
 }
+
+bool CCEH::Recovery(void) {
+  bool recovered = false;
+  size_t i = 0;
+  while (i < dir.capacity) {
+    size_t depth_cur = dir._[i]->local_depth;
+    size_t stride = pow(2, global_depth - depth_cur);
+    size_t j = i + stride;  // buddy index
+    if (j == dir.capacity) break;
+    size_t depth_buddy = dir._[j]->local_depth;
+    if (depth_cur < depth_buddy) {
+      for (size_t k = j-1; i < k; k--) {
+        if (dir._[k]->local_depth != depth_cur) {
+          dir._[k]->local_depth = depth_cur;
+          recovered = true;
+        }
+      }
+    } else {
+      if (depth_cur == depth_buddy) {
+        for (size_t k = j+1; k < j+stride; k++) {
+          if (dir._[k] != dir._[j]) {
+            dir._[k] = dir._[j];
+            recovered = true;
+          }
+        }
+      } else {  // shrink
+        for (size_t k = j+stride-1; j <= k; k--) {
+          if (dir._[k] == dir._[j+stride-1]) {
+            dir._[k] = dir._[j+stride-1];
+            recovered = true;
+          }
+        }
+      }
+    }
+    i = i + pow(2, global_depth - (depth_cur-1));
+  }
+  if (recovered) {
+    clflush((char*)&dir._[0], sizeof(void*)*dir.capacity);
+  }
+  return recovered;
+}

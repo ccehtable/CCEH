@@ -112,6 +112,7 @@ class CCEH : public Hash {
     Value_t FindAnyway(Key_t&);
     double Utilization(void);
     size_t Capacity(void);
+    bool Recovery(void);
 
     void* operator new(size_t size) {
       void *ret;
