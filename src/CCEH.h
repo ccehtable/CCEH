@@ -6,22 +6,17 @@
 #include "util/pair.h"
 #include "src/hash.h"
 
-// #define INPLACE
-// #define LSB
-
-// const size_t kMask = 4096-1;
-// const size_t kMask = 1024-1;
-const size_t kMask = 256-1;
-// const size_t kMask = 64-1;
-// const size_t kMask = 16-1;
-// const size_t kMask = 4-1;
-const size_t kShift = 8;
+const size_t kSegmentBits = 8;
+const size_t kMask = pow(2, kSegmentBits)-1;
+// const size_t kMask = 256-1;  // (2^8-1)
+const size_t kShift = kSegmentBits;
+const size_t kSegmentSize = pow(2, kSegmentBits) * 16 * 4;
 
 struct Segment {
   // static const size_t kSegmentSize = 256; // 4 - 1
   // static const size_t kSegmentSize = 1024; // 16 - 1
   // static const size_t kSegmentSize = 4*1024; // 64 - 1
-  static const size_t kSegmentSize = 16*1024; // 256 - 1
+  // static const size_t kSegmentSize = 16*1024; // 256 - 1
   // static const size_t kSegmentSize = 64*1024; // 1024 - 1
   // static const size_t kSegmentSize = 256*1024; // 4096 - 1
   static const size_t kNumSlot = kSegmentSize/sizeof(Pair);

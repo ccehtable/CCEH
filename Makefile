@@ -171,3 +171,14 @@ all:
 
 clean:
 	rm -rf src/*.o bin/* util/*.o external/*.o
+
+
+ALL_CCEH: src/CCEH.h src/CCEH_LSB.cpp src/CCEH_MSB.cpp
+	$(CXX) $(CFLAGS) -c -o src/CCEH_LSB_CoW.o src/CCEH_LSB.cpp
+	$(CXX) $(CFLAGS) -c -o src/CCEH_MSB_CoW.o src/CCEH_MSB.cpp
+	$(CXX) $(CFLAGS) -c -o src/CCEH_LSB.o src/CCEH_LSB.cpp -DINPLACE
+	$(CXX) $(CFLAGS) -c -o src/CCEH_MSB.o src/CCEH_MSB.cpp -DINPLACE
+	$(CXX) $(CFLAGS) -o bin/CCEH_LSB_CoW.x test/block_size.cpp src/CCEH_LSB_CoW.o -DEP
+	$(CXX) $(CFLAGS) -o bin/CCEH_MSB_CoW.x test/block_size.cpp src/CCEH_MSB_CoW.o -DEP
+	$(CXX) $(CFLAGS) -o bin/CCEH_LSB.x test/block_size.cpp src/CCEH_LSB.o -DEP
+	$(CXX) $(CFLAGS) -o bin/CCEH_MSB.x test/block_size.cpp src/CCEH_MSB.o -DEP
