@@ -245,7 +245,6 @@ RETRY:
 #endif
         }
       } else {  // directory doubling
-        splitCount++;
         auto d = dir._;
         auto _dir = new Segment*[dir.capacity*2];
         for (unsigned i = 0; i < dir.capacity; ++i) {

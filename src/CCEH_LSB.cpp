@@ -211,7 +211,6 @@ RETRY:
 #endif
         dir.LSBUpdate(s[0]->local_depth, global_depth, dir.capacity, x, s);
       } else {  // directory doubling
-        splitCount++;
         auto d = dir._;
         auto _dir = new Segment*[dir.capacity*2];
         memcpy(_dir, d, sizeof(Segment*)*dir.capacity);
