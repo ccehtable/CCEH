@@ -10,8 +10,6 @@
 
 extern size_t lockCount;
 extern size_t splitCount;
-const size_t kNumPairPerCacheLine = 4;
-const size_t kNumCacheLine = 4;
 
 int Segment::Insert(Key_t& key, Value_t value, size_t loc, size_t key_hash) {
 #ifdef INPLACE
@@ -213,6 +211,7 @@ RETRY:
 #endif
         dir.LSBUpdate(s[0]->local_depth, global_depth, dir.capacity, x, s);
       } else {  // directory doubling
+        splitCount++;
         auto d = dir._;
         auto _dir = new Segment*[dir.capacity*2];
         memcpy(_dir, d, sizeof(Segment*)*dir.capacity);
@@ -267,7 +266,8 @@ bool CCEH::Delete(Key_t& key) {
 
 Value_t CCEH::Get(Key_t& key) {
   auto key_hash = h(&key, sizeof(key));
-  auto x = (key_hash % dir.capacity);
+  const size_t mask = dir.capacity-1;
+  auto x = (key_hash & mask);
   auto y = (key_hash >> (sizeof(key_hash)*8-kShift)) * kNumPairPerCacheLine;
 
   auto dir_ = dir._[x];

@@ -10,8 +10,6 @@
 
 extern size_t lockCount;
 extern size_t splitCount;
-const size_t kNumPairPerCacheLine = 4;
-const size_t kNumCacheLine = 4;
 
 int Segment::Insert(Key_t& key, Value_t value, size_t loc, size_t key_hash) {
 #ifdef INPLACE
@@ -247,6 +245,7 @@ RETRY:
 #endif
         }
       } else {  // directory doubling
+        splitCount++;
         auto d = dir._;
         auto _dir = new Segment*[dir.capacity*2];
         for (unsigned i = 0; i < dir.capacity; ++i) {
