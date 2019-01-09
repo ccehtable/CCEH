@@ -77,8 +77,8 @@ RETRY:
   uint32_t s_idx = S_IDX();
   int j;
 
-  for (;;)
-  {
+  // for (;;)
+  // {
     auto lock1 = INVALID;
     for(j = 0; j < ASSOC_NUM; j ++){
       {
@@ -115,15 +115,16 @@ RETRY:
       }
     }
 
-    timer.Start();
-    auto ret = rehash(f_idx, cuckoo_loop);
-    timer.Stop();
-    breakdown += timer.GetSeconds();
-    if (ret == 2) break;
-  }
+    // timer.Start();
+    // auto ret = rehash(f_idx, cuckoo_loop);
+    // timer.Stop();
+    // breakdown += timer.GetSeconds();
+    // if (ret == 2) break;
+  // }
   int res_lock = 0;
   if (CAS(&resizing_lock, &res_lock, 1)) {
-    resize();
+    auto ret = rehash(f_idx, cuckoo_loop);
+    if (ret == 2) resize();
     resizing_lock = 0;
   }
   goto RETRY;
@@ -211,6 +212,7 @@ Value_t BucketizedCuckooHashing::Get(Key_t& key)
     mutex = new shared_mutex[newCapacity/locksize+1];
     int prev_nlocks = nlocks;
     nlocks = newCapacity/locksize+1;
+    cout << newCapacity << endl;
 
     addr_capacity = newCapacity;
     Node* newBucket = new Node[addr_capacity];
